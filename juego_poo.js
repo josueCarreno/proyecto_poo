@@ -12,7 +12,10 @@ class Personaje {
     this.velocidad = Math.floor(Math.random() * 10);
   }
   atacar() {
-    console.log("atacando");
+    return definirNumeroAleatorio(this.ataque);
+  }
+  defender() {
+    return definirNumeroAleatorio(this.defensa);
   }
   saludar() {
     console.log(`Hola, soy ${this.nombre}, y mi velocidad es ${this.velocidad}`);
@@ -31,22 +34,20 @@ class Guerrero extends Personaje {
   armas = [
     {
       nombre: "Espada",
-      daño: 50,
+      danio: 50,
     },
     {
       nombre: "Cuchillo",
-      daño: 30,
+      danio: 30,
     },
     {
       nombre: "Mesa",
-      daño: 10,
+      danio: 10,
     }
   ];
   atacarConArmas() {
-    let max = this.armas.length - 1;
-    let min = 0;
-    let numeroAleatorio = Math.floor(Math.random() * (max - min + 1) + min);
-    console.log(this.armas[numeroAleatorio].daño);
+    let numeroAleatorio = definirNumeroAleatorio(this.armas.length - 1);
+    return this.armas[numeroAleatorio];
   }
 }
 
@@ -54,26 +55,24 @@ class Arquero extends Personaje {
   flechas = [
     {
       nombre: "Fuego",
-      daño: 40,
+      danio: 40,
     },
     {
       nombre: "Veneno",
-      daño: 50,
+      danio: 50,
     },
     {
       nombre: "Electricidad",
-      daño: 30,
+      danio: 30,
     },
     {
       nombre: "Normal",
-      daño: 20,
+      danio: 20,
     }
   ];
   atacarConFlechas() {
-    let max = this.flechas.length - 1;
-    let min = 0;
-    let numeroAleatorio = Math.floor(Math.random() * (max - min + 1) + min);
-    console.log(this.flechas[numeroAleatorio].daño);
+    let numeroAleatorio = definirNumeroAleatorio(this.flechas.length - 1);
+    return this.flechas[numeroAleatorio];
   }
 }
 
@@ -81,26 +80,24 @@ class Lancero extends Personaje {
   armas = [
     {
       nombre: "Lanza",
-      daño: 40,
+      danio: 40,
     },
     {
       nombre: "Hacha",
-      daño: 50,
+      danio: 50,
     },
     {
       nombre: "Daga",
-      daño: 30,
+      danio: 30,
     },
     {
       nombre: "Martillo",
-      daño: 20,
+      danio: 20,
     }
   ];
-  atacarConLanza() {
-    let max = this.armas.length - 1;
-    let min = 0;
-    let numeroAleatorio = Math.floor(Math.random() * (max - min + 1) + min);
-    console.log(this.armas[numeroAleatorio].daño);
+  atacarConArmas() {
+    let numeroAleatorio = definirNumeroAleatorio(this.armas.length - 1);
+    return this.armas[numeroAleatorio];
   }
 }
 
@@ -110,21 +107,73 @@ let arquero = new Arquero("Robin Hood", 150, 10, 10);
 let lancero1 = new Lancero("José Inocencio Chincá", 150, 10, 10);
 let lancero2 = new Lancero("Ronaldo de Toledo", 150, 10, 10);
 
-let jugadoresTotal = [guerrero1, guerrero2, arquero, lancero1, lancero2];
-let velocidadTotal = [guerrero1.velocidad, guerrero2.velocidad, arquero.velocidad, lancero1.velocidad, lancero2.velocidad];
-let max = 0;
-let ordenRonda = [];
-let posicion = 0;
+function definirOrdenRonda(){
+  let jugadoresTotal = [guerrero1, guerrero2, arquero, lancero1, lancero2];
+  let velocidadTotal = [guerrero1.velocidad, guerrero2.velocidad, arquero.velocidad, lancero1.velocidad, lancero2.velocidad];
+  let ordenRonda = [];
 
-while (jugadoresTotal.length > 1) {
-  let max = Math.max(...velocidadTotal);
-  let posicion = velocidadTotal.indexOf(max);
-  ordenRonda.push(jugadoresTotal[posicion]);
-  jugadoresTotal.splice(posicion, 1);
-  velocidadTotal.splice(posicion, 1);
+  while (jugadoresTotal.length > 0) {
+    let max = Math.max(...velocidadTotal);
+    let posicion = velocidadTotal.indexOf(max);
+    ordenRonda.push(jugadoresTotal[posicion]);
+    jugadoresTotal.splice(posicion, 1);
+    velocidadTotal.splice(posicion, 1);
+  }
+  return ordenRonda;
 }
 
-console.log(max);
-console.log(ordenRonda);
+function definirNumeroAleatorio(max, min = 0){
+  let numeroAleatorio = Math.floor(Math.random() * (max - min + 1) + min);
+  return numeroAleatorio;
+}
+
+function obtenerBooleanoAleatoriamente() {
+  return Math.random() >= 0.5;
+}
+
+let rondaOrdenada = definirOrdenRonda();
+let jugadorAtacado = definirNumeroAleatorio(rondaOrdenada.length - 1, 1);
+
+function definirAtaque (ataque, defensa, arma = "sus manos") {
+  if ((ataque - defensa) < 0) {
+    danio = 0;
+  }
+  else {
+    danio = ataque - defensa;
+  }
+
+  rondaOrdenada[jugadorAtacado].vida = rondaOrdenada[jugadorAtacado].vida - danio;
+  console.log(rondaOrdenada[jugadorAtacado]);
+  console.log(`${rondaOrdenada[0].nombre} atacó usando ${arma} a ${rondaOrdenada[jugadorAtacado].nombre}. El daño fue de ${danio}`);
+}
+
+if (obtenerBooleanoAleatoriamente()) {
+  let ataque = rondaOrdenada[0].atacar();
+  let defensa = rondaOrdenada[jugadorAtacado].defender();
+  definirAtaque(ataque, defensa);
+}
+else {
+  let rondaOrdenada = definirOrdenRonda();
+  let jugadorAtacado = definirNumeroAleatorio(rondaOrdenada.length - 1, 1);
+  let armas;
+
+  if (rondaOrdenada[0].nombre ===  arquero.nombre) {
+    armas = rondaOrdenada[0].atacarConFlechas();
+  }
+  else {
+    armas = rondaOrdenada[0].atacarConArmas();
+  }
+  let arma = armas.nombre;
+  let ataque = armas.danio
+  let defensa = rondaOrdenada[jugadorAtacado].defender();
+  definirAtaque(ataque, defensa, arma);
+}
+
+
+
+
+
+
+
 
 
