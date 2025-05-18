@@ -107,9 +107,16 @@ let arquero = new Arquero("Robin Hood", 150, 10, 10);
 let lancero1 = new Lancero("José Inocencio Chincá", 150, 10, 10);
 let lancero2 = new Lancero("Ronaldo de Toledo", 150, 10, 10);
 
-function definirOrdenRonda(){
-  let jugadoresTotal = [guerrero1, guerrero2, arquero, lancero1, lancero2];
-  let velocidadTotal = [guerrero1.velocidad, guerrero2.velocidad, arquero.velocidad, lancero1.velocidad, lancero2.velocidad];
+function definirOrdenRonda(jugadoresTotal = [guerrero1, guerrero2, arquero, lancero1, lancero2]){
+  
+  let velocidadTotal = [];
+  
+  for (let i = 0; i < jugadoresTotal.length; i++) {
+    jugadoresTotal[i].velocidad = definirNumeroAleatorio(10);
+    velocidadTotal.push(jugadoresTotal[i].velocidad);
+  }
+  
+  
   let ordenRonda = [];
 
   while (jugadoresTotal.length > 0) {
@@ -131,43 +138,64 @@ function obtenerBooleanoAleatoriamente() {
   return Math.random() >= 0.5;
 }
 
-let rondaOrdenada = definirOrdenRonda();
-let jugadorAtacado = definirNumeroAleatorio(rondaOrdenada.length - 1, 1);
-
-function definirAtaque (ataque, defensa, arma = "sus manos") {
+function definirAtaque (jugadorAtacante, jugadorAtacado, ataque, defensa, arma = "sus manos") {
   if ((ataque - defensa) < 0) {
     danio = 0;
   }
   else {
     danio = ataque - defensa;
   }
+  while (jugadorAtacante === jugadorAtacado) {
+    jugadorAtacado = definirNumeroAleatorio(rondaOrdenada.length - 1);
+  }
 
   rondaOrdenada[jugadorAtacado].vida = rondaOrdenada[jugadorAtacado].vida - danio;
-  console.log(rondaOrdenada[jugadorAtacado]);
-  console.log(`${rondaOrdenada[0].nombre} atacó usando ${arma} a ${rondaOrdenada[jugadorAtacado].nombre}. El daño fue de ${danio}`);
+
+  if (rondaOrdenada[jugadorAtacado].vida < 0) {
+    rondaOrdenada[jugadorAtacado].vida = 0;
+  }
+
+  console.log(`${rondaOrdenada[jugadorAtacante].nombre} atacó usando ${arma} a ${rondaOrdenada[jugadorAtacado].nombre}. Su velocidad es de ${rondaOrdenada[jugadorAtacante].velocidad}. El daño fue de ${danio} y su vida es de ${rondaOrdenada[jugadorAtacado].vida}`);
+  if (rondaOrdenada[jugadorAtacado].vida <= 0) {
+      console.log(`${rondaOrdenada[jugadorAtacado].nombre} ha muerto \n`);
+      rondaOrdenada.splice(jugadorAtacado, 1);
+  }
 }
 
-if (obtenerBooleanoAleatoriamente()) {
-  let ataque = rondaOrdenada[0].atacar();
-  let defensa = rondaOrdenada[jugadorAtacado].defender();
-  definirAtaque(ataque, defensa);
-}
-else {
-  let rondaOrdenada = definirOrdenRonda();
-  let jugadorAtacado = definirNumeroAleatorio(rondaOrdenada.length - 1, 1);
-  let armas;
+let rondaOrdenada = definirOrdenRonda();
 
-  if (rondaOrdenada[0].nombre ===  arquero.nombre) {
-    armas = rondaOrdenada[0].atacarConFlechas();
+while (rondaOrdenada.length != 1) {
+
+  for (let i = 0; i < rondaOrdenada.length; i++) {
+    let jugadorAtacado = definirNumeroAleatorio(rondaOrdenada.length - 1);
+    if (obtenerBooleanoAleatoriamente()) {
+      let ataque = rondaOrdenada[i].atacar();
+      let defensa = rondaOrdenada[jugadorAtacado].defender();
+      definirAtaque(i, jugadorAtacado, ataque, defensa);
+    }
+    else {
+      let armas;
+
+      if (rondaOrdenada[i].nombre ===  arquero.nombre) {
+        armas = rondaOrdenada[i].atacarConFlechas();
+      }
+      else {
+        armas = rondaOrdenada[i].atacarConArmas();
+      }
+      let arma = armas.nombre;
+      let ataque = armas.danio
+      let defensa = rondaOrdenada[jugadorAtacado].defender();
+      definirAtaque(i, jugadorAtacado, ataque, defensa, arma);
+    }  
   }
-  else {
-    armas = rondaOrdenada[0].atacarConArmas();
-  }
-  let arma = armas.nombre;
-  let ataque = armas.danio
-  let defensa = rondaOrdenada[jugadorAtacado].defender();
-  definirAtaque(ataque, defensa, arma);
+  rondaOrdenada = definirOrdenRonda(rondaOrdenada);
 }
+
+console.log("El ganador es " + rondaOrdenada[0].nombre);
+
+
+
+
 
 
 
