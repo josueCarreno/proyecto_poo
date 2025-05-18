@@ -9,7 +9,7 @@ class Personaje {
     this.vida = vida;
     this.ataque = ataque;
     this.defensa = defensa;
-    this.velocidad = Math.floor(Math.random() * 10);
+    this.velocidad = 0;
   }
   atacar() {
     return definirNumeroAleatorio(this.ataque);
@@ -18,7 +18,7 @@ class Personaje {
     return definirNumeroAleatorio(this.defensa);
   }
   saludar() {
-    console.log(`Hola, soy ${this.nombre}, y mi velocidad es ${this.velocidad}`);
+    console.log(`Hola, mi nombre es ${this.nombre}, y soy un ${this.constructor.name}`);
   }
 }
 
@@ -139,35 +139,57 @@ function obtenerBooleanoAleatoriamente() {
 }
 
 function definirAtaque (jugadorAtacante, jugadorAtacado, ataque, defensa, arma = "sus manos") {
-  if ((ataque - defensa) < 0) {
-    danio = 0;
+  
+  let jugadorOfensivo = rondaOrdenada[jugadorAtacante].nombre;
+  let jugadorDefensivo = rondaOrdenada[jugadorAtacado].nombre;
+  
+  if (definirNumeroAleatorio(10) != 3) {
+
+    if ((ataque - defensa) < 0) {
+      danio = 0;
+    }
+    else {
+      danio = ataque - defensa;
+    }
+
+    rondaOrdenada[jugadorAtacado].vida = rondaOrdenada[jugadorAtacado].vida - danio;
+
+    if (rondaOrdenada[jugadorAtacado].vida < 0) {
+      rondaOrdenada[jugadorAtacado].vida = 0;
+    }
+
+    let jugadorDefensivoVida = rondaOrdenada[jugadorAtacado].vida;
+
+    console.log(`${jugadorOfensivo} atacó usando ${arma} a ${jugadorDefensivo}. ${jugadorDefensivo} sufrió un daño de: ${danio}. Puntos de vida restantes: ${jugadorDefensivoVida}`);
+    if (rondaOrdenada[jugadorAtacado].vida <= 0) {
+        console.log(`¡${jugadorDefensivo} ha muerto!`);
+        rondaOrdenada.splice(jugadorAtacado, 1);
+    }
   }
   else {
-    danio = ataque - defensa;
-  }
-  while (jugadorAtacante === jugadorAtacado) {
-    jugadorAtacado = definirNumeroAleatorio(rondaOrdenada.length - 1);
-  }
-
-  rondaOrdenada[jugadorAtacado].vida = rondaOrdenada[jugadorAtacado].vida - danio;
-
-  if (rondaOrdenada[jugadorAtacado].vida < 0) {
-    rondaOrdenada[jugadorAtacado].vida = 0;
-  }
-
-  console.log(`${rondaOrdenada[jugadorAtacante].nombre} atacó usando ${arma} a ${rondaOrdenada[jugadorAtacado].nombre}. Su velocidad es de ${rondaOrdenada[jugadorAtacante].velocidad}. El daño fue de ${danio} y su vida es de ${rondaOrdenada[jugadorAtacado].vida}`);
-  if (rondaOrdenada[jugadorAtacado].vida <= 0) {
-      console.log(`${rondaOrdenada[jugadorAtacado].nombre} ha muerto \n`);
-      rondaOrdenada.splice(jugadorAtacado, 1);
+    console.log(`${jugadorOfensivo} atacó usando ${arma} a ${jugadorDefensivo}. ${jugadorDefensivo} esquivó el ataque.`);
   }
 }
 
 let rondaOrdenada = definirOrdenRonda();
 
+for (let i = 0; i < rondaOrdenada.length; i++) {
+  rondaOrdenada[i].saludar();
+}
+
+let contador = 1;
+
 while (rondaOrdenada.length != 1) {
+
+  console.log(`\nRonda ${contador}`);
 
   for (let i = 0; i < rondaOrdenada.length; i++) {
     let jugadorAtacado = definirNumeroAleatorio(rondaOrdenada.length - 1);
+
+    while (rondaOrdenada[i] === jugadorAtacado) {
+      jugadorAtacado = definirNumeroAleatorio(rondaOrdenada.length - 1);
+    }
+
     if (obtenerBooleanoAleatoriamente()) {
       let ataque = rondaOrdenada[i].atacar();
       let defensa = rondaOrdenada[jugadorAtacado].defender();
@@ -188,10 +210,11 @@ while (rondaOrdenada.length != 1) {
       definirAtaque(i, jugadorAtacado, ataque, defensa, arma);
     }  
   }
+  contador++;
   rondaOrdenada = definirOrdenRonda(rondaOrdenada);
 }
 
-console.log("El ganador es " + rondaOrdenada[0].nombre);
+console.log(`\n ¡El ganador es ${rondaOrdenada[0].nombre}!`);
 
 
 
